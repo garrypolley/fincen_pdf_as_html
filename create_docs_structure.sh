@@ -97,4 +97,6 @@ cat << EOF >> docs/crawlable/index.html
 </html>
 EOF
 
+echo "fincen-docs.garrypolley.com\n" > docs/CNAME
+
 echo "Documentation structure created in the 'docs' directory with crawlable subdirectories."
