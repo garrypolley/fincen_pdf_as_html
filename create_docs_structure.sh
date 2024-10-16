@@ -48,6 +48,9 @@ for dir in htmls/*/; do
         # Copy all files from the original directory to the new subdirectory
         cp -R "$dir"* "docs/$dir_name/"
 
+        # Copy all files from the original directory to the crawlable subdirectory
+        cp -R "$dir"* "docs/crawlable/$dir_name/"
+
         # Add links to the main index.html file
         echo "        <li><a href=\"$dir_name/$root_html_name\">$title</a></li>" >> docs/index.html
         echo "        <li><a href=\"crawlable/$dir_name/index.html\">$title (Crawlable)</a></li>" >> docs/index.html
@@ -73,7 +76,7 @@ EOF
         find "$dir" -type f | while read -r file; do
             rel_path="${file#$dir}"
             file_name=$(basename "$file")
-            echo "        <li><a href=\"../../$dir_name/$rel_path\">$file_name</a></li>" >> "docs/crawlable/$dir_name/index.html"
+            echo "        <li><a href=\"$file_name\">$file_name</a></li>" >> "docs/crawlable/$dir_name/index.html"
         done
 
         # Close the crawlable subdirectory index file
