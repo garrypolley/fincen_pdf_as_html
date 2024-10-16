@@ -41,48 +41,44 @@ for dir in htmls/*/; do
         root_html_name=$(basename "$root_html")
         title=$(grep -m 1 "<TITLE>" "$root_html" | sed -e 's/<TITLE>//' -e 's/<\/TITLE>//' -e 's/^ *//' -e 's/ *$//')
 
-        # Create subdirectories in docs and crawlable for this section
+        # Create subdirectories in docs for this section
         mkdir -p "docs/$dir_name"
-        mkdir -p "docs/crawlable/$dir_name"
+        mkdir -p "docs/crawlable"
 
         # Copy all files from the original directory to the new subdirectory
         cp -R "$dir"* "docs/$dir_name/"
 
-        # Copy all files from the original directory to the crawlable subdirectory
-        cp -R "$dir"* "docs/crawlable/$dir_name/"
-
         # Add links to the main index.html file
         echo "        <li><a href=\"$dir_name/$root_html_name\">$title</a></li>" >> docs/index.html
-        echo "        <li><a href=\"crawlable/$dir_name/index.html\">$title (Crawlable)</a></li>" >> docs/index.html
+        echo "        <li><a href=\"crawlable/$dir_name.html\">$title (Crawlable)</a></li>" >> docs/index.html
 
         # Add a link to the crawlable index.html file
-        echo "        <li><a href=\"$dir_name/index.html\">$title</a></li>" >> docs/crawlable/index.html
+        echo "        <li><a href=\"$dir_name.html\">$title</a></li>" >> docs/crawlable/index.html
 
-        # Create an index file for the crawlable subdirectory
-        cat << EOF > "docs/crawlable/$dir_name/index.html"
+        # Create the mega HTML file for crawlable
+        cat << EOF > "docs/crawlable/$dir_name.html"
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>$title - Crawlable Index</title>
+    <title>$title - Crawlable Mega Page</title>
 </head>
 <body>
-    <h1>$title - Crawlable Index</h1>
-    <ul>
+    <h1>$title - Crawlable Mega Page</h1>
 EOF
 
-        # Add links to all files in the original directory
-        find "$dir" -type f | while read -r file; do
-            rel_path="${file#$dir}"
-            file_name=$(basename "$file")
-            echo "        <li><a href=\"$file_name\">$file_name</a></li>" >> "docs/crawlable/$dir_name/index.html"
+        # Concatenate all relevant HTML files
+        find "$dir" -name "*-*.html" ! -name "*_ind.html" ! -name "outline.html" | sort | while read -r file; do
+            echo "<h2>$(basename "$file")</h2>" >> "docs/crawlable/$dir_name.html"
+            cat "$file" >> "docs/crawlable/$dir_name.html"
         done
 
-        # Close the crawlable subdirectory index file
-        echo "    </ul>
+        # Close the mega HTML file
+        cat << EOF >> "docs/crawlable/$dir_name.html"
 </body>
-</html>" >> "docs/crawlable/$dir_name/index.html"
+</html>
+EOF
     fi
 done
 
